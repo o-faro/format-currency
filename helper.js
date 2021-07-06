@@ -10,38 +10,36 @@ const {
 } = require("./types");
 
 // extracting formatToParts information
-const partsObj = (parts) => {
-    const partsInteger = _filter(parts, part => part.type === INTEGER);
+const extractFormattedParts = (parts) => {
+    const partsInputAmount = _filter(parts, part => part.type === INTEGER);
     const partsGroup = _filter(parts, part => part.type === GROUP);
     const partsDecimal = _find(parts, part => part.type === DECIMAL).value;
     const partsFraction = _find(parts, part => part.type === FRACTION).value;
     const partsNegative = _some(parts, part => part.type === MINUS_SIGN);
 
-    const inst = `${partsInteger[0].value}`
-    const inst2 = `${partsInteger && partsInteger.length > 1 ? partsInteger[1].value : ""}`
-    const group = `${partsGroup && partsGroup.length > 0 ? partsGroup[0].value : ""}`
+    const partsGroup1 = `${partsInputAmount[0].value}`
+    const partsGroup2 = `${partsInputAmount && partsInputAmount.length > 1 ? partsInputAmount[1].value : ""}`
+    const partsGroupDelimiter = `${partsGroup && partsGroup.length > 0 ? partsGroup[0].value : ""}`
 
     return {
-        partsInteger,
-        partsGroup,
+        partsGroup1,
+        partsGroup2,
         partsFraction,
         partsNegative,
         partsDecimal,
-        inst,
-        inst2,
-        group,
+        partsGroupDelimiter,
     }
 }
 
-const customFraction = ({ inputAmount, parts, fraction, rounding }) => {
-    const { partsNegative, partsFraction, inst, group, inst2, partsDecimal } = partsObj(parts);
+const customFraction = ({ inputAmount, fraction, rounding, parts }) => {
+    const { partsGroup1, partsGroup2, partsFraction, partsNegative, partsGroupDelimiter, partsDecimal } = extractFormattedParts(parts);
 
     // adding zeros
     if (fraction > partsFraction.length) {
         const amountToAdd = fraction - partsFraction.length;
         const appendValue = new Array(amountToAdd).fill(0);
         return (
-            `${inst}${group}${inst2}${partsDecimal}${partsFraction}${appendValue.join("")}`
+            `${partsGroup1}${partsGroupDelimiter}${partsGroup2}${partsDecimal}${partsFraction}${appendValue.join("")}`
         )
     }
 
@@ -50,11 +48,10 @@ const customFraction = ({ inputAmount, parts, fraction, rounding }) => {
         let customInputAmount = inputAmount.toString().replace(".", ",");
         const delimiterIndex = customInputAmount.indexOf(",");
         return customInputAmount.slice(0, delimiterIndex + fraction + 1)
-
     }
 }
 
 module.exports = {
     customFraction,
-    partsObj
+    extractFormattedParts
 }

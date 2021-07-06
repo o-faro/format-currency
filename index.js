@@ -1,7 +1,7 @@
 
 const assert = require("assert");
-const { EUR, US, DECIMAL } = require("./types");
-const { partsObj, customFraction } = require("./helper.js");
+const { EUR, US, DECIMAL, _000 } = require("./types");
+const { extractFormattedParts, customFraction } = require("./helper.js");
 
 /**
  * this calculation assumes that
@@ -13,23 +13,22 @@ const { partsObj, customFraction } = require("./helper.js");
  */
 
 const formatterSetup = (delimiter, fraction) => {
-    const lang = delimiter ? delimiter === "." ? US : EUR : EUR;
-    return new Intl.NumberFormat(lang, { style: DECIMAL, maximumFractionDigits: fraction });
+    const locales = delimiter && delimiter === "." ? US : EUR;
+    return new Intl.NumberFormat(locales, { style: DECIMAL, maximumFractionDigits: fraction });
 }
-
 
 const format = (inputAmount, fraction, delimiter, undefined, rounding = true) => {
     if (!inputAmount) {
-        return "0,00"
+        return _000;
     }
     const formatter = formatterSetup(delimiter, fraction ? fraction : 2);
     const parts = formatter.formatToParts(inputAmount);
-    const { partsFraction, partsNegative } = partsObj(parts)
+    const { partsFraction, partsNegative } = extractFormattedParts(parts)
 
     if (partsNegative ||
         !rounding ||
         (fraction && fraction > partsFraction.length)) {
-        return customFraction({ parts, inputAmount, fraction, rounding });
+        return customFraction({ inputAmount, fraction, rounding, parts });
     }
     return `${formatter.format(inputAmount)}`
 }
@@ -47,4 +46,4 @@ assert.strictEqual("-1,5555", format("-1.55555", 4));
 assert.strictEqual("1,555", format(1.55555, 3, ",", ".", false));
 assert.strictEqual("1,56", format("1.5555", 2));
 
-console.log("assertions true");
+console.log("all assertions resolve to true");
