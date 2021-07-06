@@ -1,6 +1,6 @@
 
 const assert = require("assert");
-const { EUR, US, DECIMAL, _000 } = require("./types");
+const { EUR, US, DECIMAL } = require("./types");
 const { extractFormattedParts, customFraction } = require("./helper.js");
 
 /**
@@ -19,7 +19,7 @@ const formatterSetup = (delimiter, fraction) => {
 
 const format = (inputAmount, fraction, delimiter, undefined, rounding = true) => {
     if (!inputAmount) {
-        return _000;
+        return "0,00";
     }
     const formatter = formatterSetup(delimiter, fraction ? fraction : 2);
     const parts = formatter.formatToParts(inputAmount);
@@ -27,7 +27,7 @@ const format = (inputAmount, fraction, delimiter, undefined, rounding = true) =>
 
     if (partsNegative ||
         !rounding ||
-        (fraction && fraction > partsFraction.length)) {
+        fraction && fraction > partsFraction.length) {
         return customFraction({ inputAmount, fraction, rounding, parts });
     }
     return `${formatter.format(inputAmount)}`

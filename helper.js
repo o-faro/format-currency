@@ -39,7 +39,9 @@ const customFraction = ({ inputAmount, fraction, rounding, parts }) => {
         const amountToAdd = fraction - partsFraction.length;
         const appendValue = new Array(amountToAdd).fill(0);
         return (
-            `${partsGroup1}${partsGroupDelimiter}${partsGroup2}${partsDecimal}${partsFraction}${appendValue.join("")}`
+            `${partsGroup1}${partsGroupDelimiter}`
+            + `${partsGroup2}${partsDecimal}`
+            + `${partsFraction}${appendValue.join("")}`
         )
     }
 
